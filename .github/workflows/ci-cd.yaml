@@ -19,6 +19,16 @@ jobs:
         with: 
           dotnet-version: '5.0.x'
 
+
+      - name: Start SQL Server
+        run: |
+          docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Pass~w0r8" -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
+
+      - name: Sleep for 5 seconds 😴
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '5s'
+
       - name: Restore dependencies 🛠
         run: dotnet restore
       
@@ -26,6 +36,8 @@ jobs:
         run: dotnet build -c Release --no-restore
 
       - name: Run automated tests 🧪
+        env:
+          ConnectionStrings__DefaultConnection: Server=localhost;Database=Customers_Test;User=sa;Password=Pass~w0r8
         run: dotnet test -c Release --no-build
 
       - name: Publish app 📰
